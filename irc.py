@@ -38,10 +38,13 @@ class GaiaBot(irc.IRCClient):
         self.channels = []
         self.network = None
         self.chanlist = ['#gaiafred']
+        self.statusCache = {}
 
     def signedOn(self):
         self.hostname = self.hostname.lower()
         self.mode(self.nickname, True, 'xB')
+        reactor.callLater(600, self.updateTimer)
+        self.updateTimer()
 
     def receivedMOTD(self, motd):
         # used for signed-on + isupport
@@ -61,9 +64,9 @@ class GaiaBot(irc.IRCClient):
             args = message.split()
             if len(args) > 1:
                 if args[1]:
-                    self.checkTree(args[1], channel)
+                    self.checkTree(args[1], channel, nick)
                 elif channel in channel2tree:
-                    self.checkTree(channel2tree[channel], channel)
+                    self.checkTree(channel2tree[channel], channel, nick)
                 else:
                     self.notice(user, 'This channel has not a tree associated with it. Try !treestatus <treename>')
 
@@ -99,19 +102,47 @@ class GaiaBot(irc.IRCClient):
     def joined(self, channel):
         self.channels.append(channel)
 
-    def checkTree(self, treename, channel):
+    def checkTree(self, treename, channel, user):
         def reportToChannel(result):
-            print result
             j = json.loads(result)
             print j
             status = j[u'status']
             treename = j[u'tree']
-            line = "PRIVMSG {} :{} is {}".format(channel, treename,
+            line = "PRIVMSG {} :{}: {} is {}".format(channel, user, treename,
                                                  status)
             print line
             self.sendLine(line)
         url = URL.format(treename)
         getPage(url).addCallbacks(callback=reportToChannel)
+
+    def updateTimer(self):
+        def setTreeStatus(result):
+            r = json.loads(result)
+            print
+            print r
+            status = r[u'status']
+            treename = r[u'tree']
+            changed = False
+            if not treename in self.statusCache:
+               changed = True
+            if treename in self.statusCache and \
+               status != self.statusCache[treename]:
+                changed = True
+            if changed:
+                # if status previously unknown (= bot has just started)
+                # or a changed status then set the topic
+                print "Regular Tree check says:", treename, "is", status
+                channel = tree2channel[tree]
+                topic = "{} is closed!".format(treename)
+                self.sendLine("TOPIC {} :{}".format(channel, topic))
+            self.statusCache[treename] = status
+            print
+
+        for tree in tree2channel:
+            url = URL.format(tree)
+            print "trying", url
+            getPage(url).addCallbacks(callback=setTreeStatus)
+
     #def lineReceived(self, data):
     ##data = data.decode('utf-8')
     ##except UnicodeDecodeError:
