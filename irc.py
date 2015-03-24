@@ -118,8 +118,6 @@ class GaiaBot(irc.IRCClient):
     def updateTimer(self):
         def setTreeStatus(result):
             r = json.loads(result)
-            print
-            print r
             status = r[u'status']
             treename = r[u'tree']
             changed = False
@@ -136,8 +134,6 @@ class GaiaBot(irc.IRCClient):
                 topic = "{} is closed!".format(treename)
                 self.sendLine("TOPIC {} :{}".format(channel, topic))
             self.statusCache[treename] = status
-            print
-
         for tree in tree2channel:
             url = URL.format(tree)
             print "trying", url
