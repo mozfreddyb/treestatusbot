@@ -1,8 +1,5 @@
+#/usr/bin/env python
 from irc import GaiaBot, GaiaBotFactory
-
-
-from sys import argv
-from os.path import isfile
 from OpenSSL import SSL
 from twisted.internet import reactor, protocol, ssl
 

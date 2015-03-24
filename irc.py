@@ -108,7 +108,6 @@ class GaiaBot(irc.IRCClient):
     def checkTree(self, treename, channel, user):
         def reportToChannel(result):
             j = json.loads(result)
-            print j
             status = j[u'status']
             treename = j[u'tree']
             line = "{}: {} is {}".format(user, treename,
@@ -131,14 +130,13 @@ class GaiaBot(irc.IRCClient):
             if changed:
                 # if status previously unknown (= bot has just started)
                 # or a changed status then set the topic
-                print "Regular Tree check says:", treename, "is", status
+                #print "Regular Tree check says:", treename, "is", status
                 channel = tree2channel[tree]
                 topic = "{} is closed!".format(treename)
-                self.sendLine("TOPIC {} :{}".format(channel, topic))
+                self.topic(channel, topic)
             self.statusCache[treename] = status
         for tree in tree2channel:
             url = URL.format(tree)
-            print "trying", url
             getPage(url).addCallbacks(callback=setTreeStatus)
 
     #def lineReceived(self, data):
