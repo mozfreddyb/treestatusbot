@@ -30,8 +30,8 @@ URL = 'https://treestatus.mozilla.org/{}?format=json'
 
 class GaiaBot(irc.IRCClient):
     def __init__(self, factory):
+        realname = "https://github.com/mozfreddyb/treestatusbot/"
         self.factory = factory
-        # self.nickname = ''.join([random.choice(ircnick) for x in xrange(7)])
         self.nickname = 'treestatusbot'
         self.dccPending = {}
         self.doLog = False
