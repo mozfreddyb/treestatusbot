@@ -8,7 +8,6 @@ import json
 COLORREGEX = re.compile(
     "\x1f|\x02|\x12|\x0f|\x16|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
-
 tree2channel = {
     'gaia': '#gaiafred',
     'b2g-inbound': '#gaiafred',
@@ -22,9 +21,6 @@ channel2tree = {}
 for tree in tree2channel:
     channel = tree2channel[tree]
     channel2tree[channel] = tree
-
-
-
 
 URL = 'https://treestatus.mozilla.org/{}?format=json'
 
@@ -45,6 +41,13 @@ class GaiaBot(irc.IRCClient):
         self.mode(self.nickname, True, 'xB')
         reactor.callLater(600, self.updateTimer)
         self.updateTimer()
+        try:
+            NICKPASSWD = file("nickserv-password").read().strip()
+            self.sendLine("PRIVMSG NickServ :IDENTIFY treestatusbot {}".format(
+                        NICKPASSWD))
+        except:
+            print "Could not find file 'nickserv-password'. Not identifying."
+            pass
 
     def receivedMOTD(self, motd):
         # used for signed-on + isupport
