@@ -1,0 +1,13 @@
+name: treestatusbot
+url: []
+instances: 1
+framework:
+  type: standalone
+  runtime: python27
+command: 'python main.py'
+requirements:
+  pypm:
+   - Twisted
+   - pyOpenSSL
+  pip:
+   - service_identity

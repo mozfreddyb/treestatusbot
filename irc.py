@@ -97,10 +97,8 @@ class GaiaBot(irc.IRCClient):
                     return  # dont want no stupid bcasts
                 print "<%s> %s" % (nick, message)
 
-
     def getNickFromPrefix(self, user):
         return user.split("!")[0]
-
 
     def joined(self, channel):
         self.channels.append(channel)
