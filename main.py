@@ -2,6 +2,7 @@
 from irc import GaiaBot, GaiaBotFactory
 from OpenSSL import SSL
 from twisted.internet import reactor, protocol, ssl
+from twisted.python.lockfile import FilesystemLock, isLocked
 
 SERVER="irc.mozilla.org"
 PORT="6697"
@@ -48,10 +49,21 @@ class CtxFactory(ssl.ClientContextFactory):
         return ctx
 
 
+from os import path
 
 if __name__ == '__main__':
+    lock = FilesystemLock("treestatusbot.lock")
+    if isLocked("treestatusbot.lock"):
+        raise SystemExit("There's already a bot running. If this is not the "
+                         "case, please remove treestatusbot.lock manually")
+    else:
+        lock.lock()
+    def unlock():
+        lock.unlock()
+
     f = GaiaBotFactory()
     reactor.connectSSL(SERVER, int(PORT), f, CtxFactory())
     print "Connecting to", SERVER, PORT
     # run bot
+    reactor.addSystemEventTrigger('before', 'shutdown', unlock)
     reactor.run()
