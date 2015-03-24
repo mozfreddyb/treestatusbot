@@ -43,7 +43,7 @@ class GaiaBot(irc.IRCClient):
         self.updateTimer()
         try:
             NICKPASSWD = file("nickserv-password").read().strip()
-            self.sendLine("PRIVMSG NickServ :IDENTIFY treestatusbot {}".format(
+            self.msg('NickServ', 'IDENTIFY treestatusbot {}'.format(
                         NICKPASSWD))
         except:
             print "Could not find file 'nickserv-password'. Not identifying."
@@ -80,9 +80,9 @@ class GaiaBot(irc.IRCClient):
                 try:
                     reply = eval(cmd)
                 except Exception as err:  # gotta catch 'm all.
-                    self.msg(channel, "Error: %s" % err)
+                    self.say(channel, "Error: %s" % err)
                 else:
-                    self.msg(channel, "> %r" % (reply,))
+                    self.say(channel, "> %r" % (reply,))
         elif channel == self.nickname:
             if self.doLog:
                 if '.' in nick or nick == 'Global':
@@ -111,10 +111,9 @@ class GaiaBot(irc.IRCClient):
             print j
             status = j[u'status']
             treename = j[u'tree']
-            line = "PRIVMSG {} :{}: {} is {}".format(channel, user, treename,
+            line = "{}: {} is {}".format(user, treename,
                                                  status)
-            print line
-            self.sendLine(line)
+            self.say(channel, line)
         url = URL.format(treename)
         getPage(url).addCallbacks(callback=reportToChannel)
 
