@@ -8,22 +8,20 @@ import json
 COLORREGEX = re.compile(
     "\x1f|\x02|\x12|\x0f|\x16|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
-UPDATETIMER = 10
-# Do not add multiple trees with the same channel. it will lead to topic races
-# see line 130 following.
+UPDATETIMER = 600
+URL = 'https://treestatus.mozilla.org/{}?format=json'
 
+# Do not add multiple trees with the same channel. it will lead to topic races
+# see line 130 following.:
 tree2channel = {
     'gaia': '#gaia',
-
 }
-
-
 channel2tree = {}
 for tree in tree2channel:
     channel = tree2channel[tree]
     channel2tree[channel] = tree
 
-URL = 'https://treestatus.mozilla.org/{}?format=json'
+
 
 class GaiaBot(irc.IRCClient):
     def __init__(self, factory):
@@ -122,6 +120,8 @@ class GaiaBot(irc.IRCClient):
             status = r[u'status']
             treename = r[u'tree']
             changed = False
+            logmsg = "Regular Tree check says: {} is {}".format(treename,
+                                                                status)
             if not treename in self.statusCache:
                changed = True
             if treename in self.statusCache and \
