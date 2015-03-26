@@ -8,6 +8,7 @@ import json
 COLORREGEX = re.compile(
     "\x1f|\x02|\x12|\x0f|\x16|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
+UPDATETIMER = 10
 # Do not add multiple trees with the same channel. it will lead to topic races
 # see line 130 following.
 
@@ -39,7 +40,7 @@ class GaiaBot(irc.IRCClient):
     def signedOn(self):
         self.hostname = self.hostname.lower()
         self.mode(self.nickname, True, 'xB')
-        reactor.callLater(600, self.updateTimer)
+        reactor.callLater(UPDATETIMER, self.updateTimer)
         self.updateTimer()
         try:
             NICKPASSWD = file("nickserv-password").read().strip()
@@ -115,6 +116,7 @@ class GaiaBot(irc.IRCClient):
         getPage(url).addCallbacks(callback=reportToChannel)
 
     def updateTimer(self):
+        reactor.callLater(UPDATETIMER, self.updateTimer)
         def setTreeStatus(result):
             r = json.loads(result)
             status = r[u'status']
@@ -128,10 +130,14 @@ class GaiaBot(irc.IRCClient):
             if changed:
                 # if status previously unknown (= bot has just started)
                 # or a changed status then set the topic
-                print "Regular Tree check says:", treename, "is", status
                 channel = tree2channel[tree]
-                topic = "{} is closed!".format(treename)
+                topic = "{} is {}!".format(treename, status)
                 self.topic(channel, topic)
+                logmsg += ", which is new. changing topic."
+                print logmsg
+            else:
+                logmsg += ", just like before"
+                print logmsg
             self.statusCache[treename] = status
         for tree in tree2channel:
             url = URL.format(tree)
