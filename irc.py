@@ -128,7 +128,7 @@ class GaiaBot(irc.IRCClient):
             if changed:
                 # if status previously unknown (= bot has just started)
                 # or a changed status then set the topic
-                #print "Regular Tree check says:", treename, "is", status
+                print "Regular Tree check says:", treename, "is", status
                 channel = tree2channel[tree]
                 topic = "{} is closed!".format(treename)
                 self.topic(channel, topic)
