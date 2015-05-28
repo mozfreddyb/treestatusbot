@@ -8,7 +8,7 @@ import json
 COLORREGEX = re.compile(
     "\x1f|\x02|\x12|\x0f|\x16|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
-UPDATETIMER = 600
+UPDATETIMER = 55
 URL = 'https://treestatus.mozilla.org/{}?format=json'
 
 # Do not add multiple trees with the same channel. it will lead to topic races
