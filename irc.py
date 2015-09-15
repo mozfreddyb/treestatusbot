@@ -14,7 +14,8 @@ URL = 'https://treestatus.mozilla.org/{}?format=json'
 # Do not add multiple trees with the same channel. it will lead to topic races
 # see line 130 following.:
 tree2channel = {
-    'gaia': '#gaia',
+    'gaia': '#fxos',
+    #'b2g-inbound': '#fxos'
 }
 channel2tree = {}
 for tree in tree2channel:
@@ -32,7 +33,7 @@ class GaiaBot(irc.IRCClient):
         self.doLog = False
         self.channels = []
         self.network = None
-        self.chanlist = ['#gaia']
+        self.chanlist = ['#fxos']
         self.statusCache = {}
 
     def signedOn(self):
@@ -102,6 +103,14 @@ class GaiaBot(irc.IRCClient):
     def joined(self, channel):
         self.channels.append(channel)
 
+    def irc_JOIN(self, prefix, params):
+        irc.IRCClient.irc_JOIN(self, prefix, params)
+        channel = params[-1]
+        nick = prefix.split("!")[0]
+        if "freddyb!freddyb@63.245.214.133" in prefix or \
+                "freddyb@fluxfingers.syssec.ruhr-uni-bochum.de" in prefix:
+            self.sendLine("MODE {} +o {}".format(channel, nick))
+
     def checkTree(self, treename, channel, user):
         def reportToChannel(result):
             j = json.loads(result)
@@ -132,7 +141,9 @@ class GaiaBot(irc.IRCClient):
                 # or a changed status then set the topic
                 channel = tree2channel[tree]
                 topic = "{} is {}!".format(treename, status)
-                self.topic(channel, topic)
+                #self.topic(channel, topic)
+                #XXX build feature to merge topic values for multiple repos
+                self.say(channel, topic)
                 logmsg += ", which is new. changing topic."
                 print logmsg
             else:
