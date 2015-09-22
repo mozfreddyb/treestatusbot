@@ -9,7 +9,7 @@ COLORREGEX = re.compile(
     "\x1f|\x02|\x12|\x0f|\x16|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 
 UPDATETIMER = 55
-URL = 'https://treestatus.mozilla.org/{}?format=json'
+URL = 'https://api.pub.build.mozilla.org/treestatus/trees/{}'
 
 # Do not add multiple trees with the same channel. it will lead to topic races
 # see line 130 following.:
@@ -105,7 +105,7 @@ class GaiaBot(irc.IRCClient):
     def checkTree(self, treename, channel, user):
         def reportToChannel(result):
             j = json.loads(result)
-            status = j[u'status']
+            status = j[u'result'][u'status']
             treename = j[u'tree']
             line = "{}: {} is {}".format(user, treename,
                                                  status)
@@ -117,7 +117,7 @@ class GaiaBot(irc.IRCClient):
         reactor.callLater(UPDATETIMER, self.updateTimer)
         def setTreeStatus(result):
             r = json.loads(result)
-            status = r[u'status']
+            status = r[u'result'][u'status']
             treename = r[u'tree']
             changed = False
             logmsg = "Regular Tree check says: {} is {}".format(treename,
