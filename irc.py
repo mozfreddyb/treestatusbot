@@ -127,10 +127,11 @@ class GaiaBot(irc.IRCClient):
         def setTreeStatus(result):
             r = json.loads(result)
             status = r[u'result'][u'status']
-            treename = r[u'tree']
+            treename = r[u'result'][u'tree']
+            reason = r[u'result'][u'reason']
             changed = False
-            logmsg = "Regular Tree check says: {} is {}".format(treename,
-                                                                status)
+            logmsg = "Regular Tree check says: {} is {}. Reason: {}".format(
+                treename, status, reason)
             if not treename in self.statusCache:
                changed = True
             if treename in self.statusCache and \
@@ -140,7 +141,8 @@ class GaiaBot(irc.IRCClient):
                 # if status previously unknown (= bot has just started)
                 # or a changed status then set the topic
                 channel = tree2channel[tree]
-                topic = "{} is {}!".format(treename, status)
+                topic = "{} is {} (Reason: {})!".format(treename, status,
+                                                        reason)
                 #self.topic(channel, topic)
                 #XXX build feature to merge topic values for multiple repos
                 self.say(channel, topic)
