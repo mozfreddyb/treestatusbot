@@ -141,8 +141,11 @@ class GaiaBot(irc.IRCClient):
                 # if status previously unknown (= bot has just started)
                 # or a changed status then set the topic
                 channel = tree2channel[tree]
-                topic = "{} is {} (Reason: {})!".format(treename, status,
+                if status != "open":
+                    topic = "{} is {} (Reason: {})!".format(treename, status,
                                                         reason)
+                else:
+                    topic = "{} is {}!".format(treename, status)
                 #self.topic(channel, topic)
                 #XXX build feature to merge topic values for multiple repos
                 self.say(channel, topic)
